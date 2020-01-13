@@ -32,12 +32,12 @@ static int encode_block(char *dest, const void *_src)
 {
     const unsigned char *src = _src;      /* cast it to a unsigned char */
     dest[0] = base32_encoding[(src[0] >> 3) & 0x1F];                          /* first 5 bits */
-    dest[1] = base32_encoding[(src[0] << 2) & 0x1C | ((src[1] >> 6) & 0x3)];  /* last 3 bits + next 2 bits */
+    dest[1] = base32_encoding[((src[0] << 2) & 0x1C) | ((src[1] >> 6) & 0x3)];  /* last 3 bits + next 2 bits */
     dest[2] = base32_encoding[(src[1] >> 1) & 0x1F];                          /* next 5 bits (tail has 1 bit) */
-    dest[3] = base32_encoding[(src[1] << 4) & 0x10 | ((src[2] >> 4) & 0xF)];  /* last bit + next four bits */
-    dest[4] = base32_encoding[(src[2] << 1) & 0x1E | ((src[3] >> 7) & 0x1)];
+    dest[3] = base32_encoding[((src[1] << 4) & 0x10) | ((src[2] >> 4) & 0xF)];  /* last bit + next four bits */
+    dest[4] = base32_encoding[((src[2] << 1) & 0x1E) | ((src[3] >> 7) & 0x1)];
     dest[5] = base32_encoding[(src[3] >> 2) & 0x1F];
-    dest[6] = base32_encoding[(src[3] << 3) & 0x18 | ((src[4] >> 5) & 0x7)];
+    dest[6] = base32_encoding[((src[3] << 3) & 0x18) | ((src[4] >> 5) & 0x7)];
     dest[7] = base32_encoding[(src[4] & 0x1F)];
     return 0;
 }
@@ -57,15 +57,15 @@ static int encode_tail(char *dest, const void *_src, size_t len)
     case 5:
         dest[7] = base32_encoding[(src[4]) & 0x1F];
     case 4:
-        dest[6] = base32_encoding[(src[3] << 3) & 0x18 | (dest[7] != padding ? (src[4] >> 5) & 0x7 : 0)];
+        dest[6] = base32_encoding[((src[3] << 3) & 0x18) | (dest[7] != padding ? (src[4] >> 5) & 0x7 : 0)];
         dest[5] = base32_encoding[(src[3] >> 2) & 0x1F];
     case 3:
-        dest[4] = base32_encoding[(src[2] << 1) & 0x1E | (dest[5] != padding ? (src[3] >> 7) & 0x1 : 0)];
+        dest[4] = base32_encoding[((src[2] << 1) & 0x1E) | (dest[5] != padding ? (src[3] >> 7) & 0x1 : 0)];
     case 2:
-        dest[3] = base32_encoding[(src[1] << 4) & 0x10 | (dest[4] != padding ? (src[2] >> 4) & 0xF : 0)];
+        dest[3] = base32_encoding[((src[1] << 4) & 0x10) | (dest[4] != padding ? (src[2] >> 4) & 0xF : 0)];
         dest[2] = base32_encoding[(src[1] >> 1) & 0x1F];
     case 1:
-        dest[1] = base32_encoding[(src[0] << 2) & 0x1C | (dest[2] != padding ? (src[1] >> 6 & 0x3) : 0)];
+        dest[1] = base32_encoding[((src[0] << 2) & 0x1C) | (dest[2] != padding ? (src[1] >> 6 & 0x3) : 0)];
         dest[0] = base32_encoding[(src[0] >> 3) & 0x1F];
         break;
     default:
@@ -78,7 +78,7 @@ static int encode_tail(char *dest, const void *_src, size_t len)
 
 size_t base32enc(char *dest, const void *_src, size_t ssize)
 {
-    int dk = 0, sk = 0, k;
+    int dk = 0, sk = 0;
     const unsigned char *src = _src;
 
 
@@ -204,7 +204,7 @@ size_t base32dec(void *dest, size_t buf_size, const char * src) {
     src_len = strlen(src);
 
     if(buf_size <= 5)  {
-    	char small_buf[5]; /* small buffer for 1-5 bytes stuff */
+    	unsigned char small_buf[5]; /* small buffer for 1-5 bytes stuff */
     	decode_block(small_buf, src);
     	memcpy(dest, small_buf, buf_size);
     	return 0;
